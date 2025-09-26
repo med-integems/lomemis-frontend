@@ -1,0 +1,208 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Government of Sierra Leone Color Scheme */
+  --sl-primary-green: #007A33;
+  --sl-secondary-blue: #005DAA;
+  --sl-accent-lime: #A3C940;
+  --sl-background-grey: #F7F7F7;
+  --sl-text-dark: #333333;
+  --sl-subtle-green: #E8F5E8;
+  --sl-active-green: #006B2D;
+
+  --background: #FFFFFF;
+  --foreground: var(--sl-text-dark);
+  --card: #FFFFFF;
+  --card-foreground: var(--sl-text-dark);
+  --popover: #FFFFFF;
+  --popover-foreground: var(--sl-text-dark);
+  --primary: var(--sl-primary-green);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--sl-secondary-blue);
+  --secondary-foreground: #FFFFFF;
+  --muted: var(--sl-background-grey);
+  --muted-foreground: #666666;
+  --accent: var(--sl-accent-lime);
+  --accent-foreground: var(--sl-text-dark);
+  --destructive: #DC2626;
+  --border: #E5E5E5;
+  --input: #F9F9F9;
+  --ring: var(--sl-primary-green);
+  --chart-1: var(--sl-primary-green);
+  --chart-2: var(--sl-secondary-blue);
+  --chart-3: var(--sl-accent-lime);
+  --chart-4: #10B981;
+  --chart-5: #F59E0B;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: var(--sl-text-dark);
+  --sidebar-primary: var(--sl-primary-green);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--sl-background-grey);
+  --sidebar-accent-foreground: var(--sl-text-dark);
+  --sidebar-border: #E5E5E5;
+  --sidebar-ring: var(--sl-primary-green);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Form field utilities for consistent spacing */
+  .field-label {
+    @apply block text-sm font-medium mb-2 text-gray-700;
+  }
+  
+  .field-label-mobile {
+    @apply block text-sm font-medium mb-3 text-gray-700;
+  }
+  
+  /* Ensure proper spacing for form inputs to prevent overlap with focus rings */
+  .form-input {
+    @apply relative z-0;
+  }
+  
+  .form-input:focus {
+    @apply z-10;
+  }
+}
+
+/* Custom active navigation styles */
+.nav-active {
+  background-color: var(--sl-subtle-green) !important;
+  color: var(--sl-active-green) !important;
+  border-left: 4px solid var(--sl-primary-green) !important;
+  font-weight: 500 !important;
+  position: relative;
+}
+
+.nav-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--sl-primary-green) 0%, transparent 100%);
+  opacity: 0.6;
+}
+
+/* Hide persistent Next.js Dev Overlay badge (the 'N' symbol) during demo */
+/* This targets common containers used by Next dev overlay across versions */
+#nextjs__container,
+#nextjs-portal,
+.nextjs-portal,
+.__nextjs-dev-overlay,
+.__next-dev-overlay,
+[data-nextjs-react-dev-overlay-root],
+[data-nextjs],
+[data-nextjs-devtools] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

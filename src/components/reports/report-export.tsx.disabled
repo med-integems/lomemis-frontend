@@ -1,0 +1,405 @@
+"use client";
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Download,
+  FileText,
+  FileSpreadsheet,
+  Calendar,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useApiMutation } from "@/hooks/useApi";
+import { reportsApi } from "@/lib/api";
+
+export interface ExportJob {
+  id: string;
+  reportName: string;
+  format: "excel" | "csv";
+  status: "pending" | "processing" | "completed" | "failed";
+  createdAt: string;
+  completedAt?: string;
+  fileSize?: string;
+  downloadUrl?: string;
+  error?: string;
+}
+
+interface ReportExportProps {
+  onExportReport: (reportId: string, format: "excel" | "csv") => void;
+  exportJobs: ExportJob[];
+  onDownload: (jobId: string) => void;
+  onRetry: (jobId: string) => void;
+}
+
+export function ReportExport({
+  onExportReport,
+  exportJobs,
+  onDownload,
+  onRetry,
+}: ReportExportProps) {
+  const [selectedFormat, setSelectedFormat] = useState<"excel" | "csv">(
+    "csv"
+  );
+
+  // Export report mutation
+  const exportReportMutation = useApiMutation(
+    ({
+      reportId,
+      {
+        id: "excel" as const,
+        name: "Excel",
+        description: "Microsoft Excel format - Best for data analysis",
+        icon: FileSpreadsheet,
+        color: "bg-green-100 text-green-800",
+      },
+        toast.success(`Export started for ${variables.reportId}`);
+        onExportReport(variables.reportId, variables.format);
+      },
+      onError: (error: any) => {
+        toast.error(`Failed to start export: ${error.message}`);
+      },
+    }
+  );
+
+  // Download export mutation
+  const downloadMutation = useApiMutation(
+    (filename: string) => reportsApi.downloadExport(filename),
+    {
+      onSuccess: (blob, filename) => {
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        toast.success("File downloaded successfully");
+      },
+      onError: (error: any) => {
+        toast.error(`Failed to download file: ${error.message}`);
+      },
+    }
+  );
+
+  const handleExportReport = (
+    reportId: string,
+    format: "pdf" | "excel" | "csv"
+  ) => {
+    exportReportMutation.mutate({ reportId, format });
+  };
+
+  const handleDownload = (jobId: string) => {
+    const job = exportJobs.find((j) => j.id === jobId);
+    if (job?.downloadUrl) {
+      const filename =
+        "use client";
+
+        import { useState } from "react";
+        import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+        import { Button } from "@/components/ui/button";
+        import { Badge } from "@/components/ui/badge";
+        import { Download, FileSpreadsheet, Calendar, CheckCircle, Clock, AlertCircle } from "lucide-react";
+        import { cn } from "@/lib/utils";
+        import { useApiMutation } from "@/hooks/useApi";
+        import { reportsApi } from "@/lib/api";
+        import { toast } from "sonner";
+
+        export interface ExportJob {
+          id: string;
+          reportName: string;
+          format: "excel" | "csv";
+          status: "pending" | "processing" | "completed" | "failed";
+          createdAt: string;
+          completedAt?: string;
+          fileSize?: string;
+          downloadUrl?: string;
+          error?: string;
+        }
+
+        interface ReportExportProps {
+          onExportReport: (reportId: string, format: "excel" | "csv") => void;
+          exportJobs: ExportJob[];
+          onDownload: (jobId: string) => void;
+          onRetry: (jobId: string) => void;
+        }
+
+        export function ReportExport({ onExportReport, exportJobs, onDownload, onRetry }: ReportExportProps) {
+          const [selectedFormat, setSelectedFormat] = useState<"excel" | "csv">("csv");
+
+          const exportReportMutation = useApiMutation(
+            ({ reportId, format }: { reportId: string; format: "excel" | "csv" }) => reportsApi.exportReport(reportId, format),
+            {
+              onSuccess: (data, variables) => {
+                toast.success(`Export started for ${variables.reportId}`);
+                onExportReport(variables.reportId, variables.format);
+              },
+              onError: (error: any) => {
+                toast.error(`Failed to start export: ${error.message}`);
+              },
+            }
+          );
+
+          const downloadMutation = useApiMutation((filename: string) => reportsApi.downloadExport(filename), {
+            onSuccess: (blob, filename) => {
+              const url = window.URL.createObjectURL(blob as Blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = filename as string;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              a.remove();
+              toast.success("File downloaded successfully");
+            },
+            onError: (error: any) => {
+              toast.error(`Failed to download file: ${error.message}`);
+            },
+          });
+
+          const handleExportReport = (reportId: string, format: "excel" | "csv") => {
+            exportReportMutation.mutate({ reportId, format });
+          };
+
+          const handleDownload = (jobId: string) => {
+            const job = exportJobs.find((j) => j.id === jobId);
+            if (job?.downloadUrl) {
+              const filename = job.downloadUrl.split("/").pop() || `export-${jobId}.${job.format}`;
+              downloadMutation.mutate(filename);
+            } else {
+              onDownload(jobId);
+            }
+          };
+
+          const exportFormats = [
+            { id: "excel" as const, name: "Excel", description: "Microsoft Excel format - Best for data analysis", icon: FileSpreadsheet, color: "bg-green-100 text-green-800" },
+            { id: "csv" as const, name: "CSV", description: "Comma-separated values - Best for data import/export", icon: FileSpreadsheet, color: "bg-blue-100 text-blue-800" },
+          ];
+
+          const getStatusIcon = (status: ExportJob["status"]) => {
+            switch (status) {
+              case "completed":
+                return CheckCircle;
+              case "processing":
+              case "pending":
+                return Clock;
+              case "failed":
+                return AlertCircle;
+              default:
+                return Clock;
+            }
+          };
+
+          const getStatusColor = (status: ExportJob["status"]) => {
+            switch (status) {
+              case "completed":
+                return "text-green-600";
+              case "processing":
+                return "text-blue-600";
+              case "pending":
+                return "text-yellow-600";
+              case "failed":
+                return "text-red-600";
+              default:
+                return "text-gray-600";
+            }
+          };
+
+          const getStatusBadgeVariant = (status: ExportJob["status"]) => {
+            switch (status) {
+              case "completed":
+                return "default";
+              case "processing":
+              case "pending":
+                return "secondary";
+              case "failed":
+                return "destructive";
+              default:
+                return "outline";
+            }
+          };
+
+          const formatDate = (dateString: string) => {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          };
+
+          const getFormatIcon = (format: string) => {
+            const formatConfig = exportFormats.find((f) => f.id === format);
+            return formatConfig?.icon || FileSpreadsheet;
+          };
+
+          return (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Export Format</CardTitle>
+                  <p className="text-sm text-muted-foreground">Choose the format for your report export</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {exportFormats.map((format) => {
+                      const Icon = format.icon;
+                      const isSelected = selectedFormat === format.id;
+
+                      return (
+                        <div key={format.id} className={cn("p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md", isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/50")} onClick={() => setSelectedFormat(format.id)}>
+                          <div className="flex items-start gap-3">
+                            <div className={cn("p-2 rounded-lg", format.color)}>
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-sm">{format.name}</h3>
+                              <p className="text-xs text-muted-foreground mt-1">{format.description}</p>
+                            </div>
+                            {isSelected && <CheckCircle className="h-5 w-5 text-primary" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Export</CardTitle>
+                  <p className="text-sm text-muted-foreground">Export standard reports in your selected format</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {[
+                      { id: "inventory_summary", name: "National Inventory" },
+                      { id: "shipment_history", name: "Shipment History" },
+                      { id: "distribution_summary", name: "Distribution Summary" },
+                      { id: "stock_movement", name: "Stock Movement" },
+                      { id: "performance_metrics", name: "Performance Metrics" },
+                      { id: "user_activity", name: "User Activity" },
+                    ].map((report) => (
+                      <Button key={report.id} variant="outline" onClick={() => handleExportReport(report.id, selectedFormat)} disabled={exportReportMutation.isPending} className="justify-start h-auto p-3">
+                        <div className="flex items-center gap-2">
+                          {exportReportMutation.isPending ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" /> : <Download className="h-4 w-4" />}
+                          <span className="text-sm">{report.name}</span>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Export History</CardTitle>
+                  <p className="text-sm text-muted-foreground">Track your recent export jobs and download completed reports</p>
+                </CardHeader>
+                <CardContent>
+                  {exportJobs.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Download className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No export history</h3>
+                      <p className="text-muted-foreground">Your export jobs will appear here once you start exporting reports.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {exportJobs.map((job) => {
+                        const StatusIcon = getStatusIcon(job.status);
+                        const FormatIcon = getFormatIcon(job.format);
+
+                        return (
+                          <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <FormatIcon className="h-5 w-5 text-muted-foreground" />
+                                <StatusIcon className={cn("h-4 w-4", getStatusColor(job.status))} />
+                              </div>
+
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-medium text-sm">{job.reportName}</h4>
+                                  <Badge variant={getStatusBadgeVariant(job.status)} className="text-xs">{job.status}</Badge>
+                                  <Badge variant="outline" className="text-xs uppercase">{job.format}</Badge>
+                                </div>
+
+                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>Created: {formatDate(job.createdAt)}</span>
+                                  </div>
+
+                                  {job.completedAt && (
+                                    <div className="flex items-center gap-1">
+                                      <CheckCircle className="h-3 w-3" />
+                                      <span>Completed: {formatDate(job.completedAt)}</span>
+                                    </div>
+                                  )}
+
+                                  {job.fileSize && <span>Size: {job.fileSize}</span>}
+                                </div>
+
+                                {job.error && (
+                                  <p className="text-xs text-red-600 mt-1">Error: {job.error}</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {job.status === "completed" && job.downloadUrl && (
+                                <Button size="sm" onClick={() => handleDownload(job.id)} disabled={downloadMutation.isPending} className="flex items-center gap-1">
+                                  {downloadMutation.isPending ? <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" /> : <Download className="h-3 w-3" />}
+                                  Download
+                                </Button>
+                              )}
+
+                              {job.status === "failed" && (
+                                <Button size="sm" variant="outline" onClick={() => onRetry(job.id)} className="flex items-center gap-1">
+                                  <AlertCircle className="h-3 w-3" />
+                                  Retry
+                                </Button>
+                              )}
+
+                              {(job.status === "processing" || job.status === "pending") && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                                  {job.status === "processing" ? "Processing..." : "Pending..."}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          );
+        }
+                        </Button>
+                      )}
+
+                      {(job.status === "processing" ||
+                        job.status === "pending") && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                          {job.status === "processing"
+                            ? "Processing..."
+                            : "Pending..."}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

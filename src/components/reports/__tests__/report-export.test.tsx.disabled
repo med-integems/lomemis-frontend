@@ -1,0 +1,291 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { ReportExport, type ExportJob } from "../report-export";
+
+const mockOnExportReport = jest.fn();
+const mockOnDownload = jest.fn();
+const mockOnRetry = jest.fn();
+
+const mockExportJobs: ExportJob[] = [
+  {
+    id: "1",
+    reportName: "National Inventory Summary",
+  format: "csv",
+    status: "completed",
+    createdAt: "2024-01-15T10:30:00Z",
+    completedAt: "2024-01-15T10:32:00Z",
+    fileSize: "2.3 MB",
+    downloadUrl: "/api/exports/1/download",
+  },
+  {
+    id: "2",
+    reportName: "Shipment History Report",
+    format: "excel",
+    status: "processing",
+    createdAt: "2024-01-15T10:25:00Z",
+  },
+  {
+    id: "3",
+    reportName: "Custom Query Report",
+    format: "csv",
+    status: "failed",
+    createdAt: "2024-01-15T10:20:00Z",
+    error: "Database connection timeout",
+  },
+];
+
+describe("ReportExport", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("renders export format selection", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={[]}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("Export Format")).toBeInTheDocument();
+    expect(screen.getByText("Excel")).toBeInTheDocument();
+    expect(screen.getByText("CSV")).toBeInTheDocument();
+  });
+
+  it("allows selecting different export formats", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={[]}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    // CSV should be selected by default - look for the parent container with the right classes
+    const csvContainer = screen.getByText("CSV").closest(".p-4");
+    expect(csvContainer).toHaveClass("border-primary");
+
+    // Click on Excel format
+    const excelContainer = screen.getByText("Excel").closest(".p-4");
+    fireEvent.click(excelContainer!);
+
+    // Excel should now be selected
+    expect(excelContainer).toHaveClass("border-primary");
+  });
+
+  it("displays quick export buttons", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={[]}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("Quick Export")).toBeInTheDocument();
+    expect(screen.getByText("National Inventory")).toBeInTheDocument();
+    expect(screen.getByText("Shipment History")).toBeInTheDocument();
+    expect(screen.getByText("Council Stock Levels")).toBeInTheDocument();
+  });
+
+  it("calls onExportReport when quick export button is clicked", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={[]}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    const nationalInventoryButton = screen.getByText("National Inventory");
+    fireEvent.click(nationalInventoryButton);
+
+    expect(mockOnExportReport).toHaveBeenCalledWith(
+      "national-inventory",
+      "pdf"
+    );
+  });
+
+  it("displays export history when jobs are provided", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("Export History")).toBeInTheDocument();
+    expect(screen.getByText("National Inventory Summary")).toBeInTheDocument();
+    expect(screen.getByText("Shipment History Report")).toBeInTheDocument();
+    expect(screen.getByText("Custom Query Report")).toBeInTheDocument();
+  });
+
+  it("shows empty state when no export jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={[]}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("No export history")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Your export jobs will appear here once you start exporting reports."
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("displays correct status badges for different job statuses", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("completed")).toBeInTheDocument();
+    expect(screen.getByText("processing")).toBeInTheDocument();
+    expect(screen.getByText("failed")).toBeInTheDocument();
+  });
+
+  it("displays format badges correctly", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.queryByText("PDF")).not.toBeInTheDocument();
+    expect(screen.getByText("excel")).toBeInTheDocument();
+    expect(screen.getByText("csv")).toBeInTheDocument();
+  });
+
+  it("shows download button for completed jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    const downloadButtons = screen.getAllByText("Download");
+    expect(downloadButtons).toHaveLength(1); // Only completed job should have download button
+  });
+
+  it("calls onDownload when download button is clicked", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    const downloadButton = screen.getByText("Download");
+    fireEvent.click(downloadButton);
+
+    expect(mockOnDownload).toHaveBeenCalledWith("1");
+  });
+
+  it("shows retry button for failed jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    const retryButton = screen.getByText("Retry");
+    expect(retryButton).toBeInTheDocument();
+  });
+
+  it("calls onRetry when retry button is clicked", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    const retryButton = screen.getByText("Retry");
+    fireEvent.click(retryButton);
+
+    expect(mockOnRetry).toHaveBeenCalledWith("3");
+  });
+
+  it("shows processing indicator for processing jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getByText("Processing...")).toBeInTheDocument();
+  });
+
+  it("displays error messages for failed jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(
+      screen.getByText("Error: Database connection timeout")
+    ).toBeInTheDocument();
+  });
+
+  it("displays file sizes for completed jobs", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      expect(mockOnExportReport).toHaveBeenCalledWith(
+        "national-inventory",
+        "csv"
+      );
+  });
+
+  it("displays creation and completion timestamps", () => {
+    render(
+      <ReportExport
+        onExportReport={mockOnExportReport}
+        exportJobs={mockExportJobs}
+        onDownload={mockOnDownload}
+        onRetry={mockOnRetry}
+      />
+    );
+
+    expect(screen.getAllByText(/Created:/)).toHaveLength(3);
+    expect(screen.getByText(/Completed:/)).toBeInTheDocument();
+  });
+});
